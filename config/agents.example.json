@@ -1,0 +1,12 @@
+{
+  "defaultAgentId": "coder",
+  "agents": [
+    {
+      "id": "mein-agent",
+      "label": "Mein Agent",
+      "description": "Kurzbeschreibung für die UI",
+      "model": "llama3.2",
+      "systemExtension": "Hier steht, wie sich der Agent verhalten soll. Diese Datei nach agents.json kopieren oder agents.json direkt bearbeiten."
+    }
+  ]
+}

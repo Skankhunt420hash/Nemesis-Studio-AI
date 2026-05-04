@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  transpilePackages: ["monaco-editor", "@monaco-editor/react"],
+  serverExternalPackages: ["node-pty"],
 };
 
 export default nextConfig;
