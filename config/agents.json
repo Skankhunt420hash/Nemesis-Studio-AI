@@ -37,6 +37,13 @@
       "systemExtension": "Du bist auf **strukturierte Daten und Konfiguration** spezialisiert: JSON, YAML, .env-Beispiele, Schemas.\nAchte auf Syntax; vor Überschreiben mit read_file prüfen."
     },
     {
+      "id": "council",
+      "label": "Nemesis-Rat",
+      "description": "Modellwahl für das 7-Personen-Gremium (Builder, Designer, Hacker, …)",
+      "model": "llama3.2",
+      "systemExtension": "Nur für die Modellwahl beim Nemesis-Rat; der Rat-Text kommt von /api/council."
+    },
+    {
       "id": "crypto",
       "label": "Referenzdaten & Formeln",
       "description": "Öffentliche Kurs-Snippets, Formatierung — optional zu Nemesis Studio",

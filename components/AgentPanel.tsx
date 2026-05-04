@@ -9,6 +9,7 @@ import type {
 import type { AgentProfile } from "@/lib/agent-profile-types";
 import { FALLBACK_DEFAULT_AGENT_ID } from "@/lib/agent-profile-types";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
+import { CouncilPanel } from "@/components/CouncilPanel";
 import { GeniusToolbox } from "@/components/GeniusToolbox";
 import { SoulMemoryPanel } from "@/components/SoulMemoryPanel";
 import type { ChatThread, ChatThreadsStore } from "@/lib/chat-threads-storage";
@@ -886,6 +887,8 @@ export function AgentPanel({
         </header>
 
         <GeniusToolbox />
+
+        <CouncilPanel agentId={agentId || FALLBACK_DEFAULT_AGENT_ID} />
 
         <SoulMemoryPanel value={soulMemory} onChange={setSoulMemory} getLastUserMessage={getLastUserMessage} />
 

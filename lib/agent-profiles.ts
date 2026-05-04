@@ -54,6 +54,13 @@ Keine großen Refactors ohne Aufforderung; erst Ursache, dann minimaler Fix.`,
 Achte auf Syntax; vor Überschreiben mit read_file prüfen.`,
   },
   {
+    id: "council",
+    label: "Nemesis-Rat",
+    description: "Empfohlenes Modell für das 7-Personen-Gremium (nur Modellwahl; Text kommt von /api/council)",
+    model: "llama3.2",
+    systemExtension: `Dieses Profil ist für die **Modellwahl** beim Nemesis-Rat gedacht (längere, strukturierte Antworten). Der eigentliche Rat-Prompt ist fest im Server.`,
+  },
+  {
     id: "crypto",
     label: "Referenzdaten & Formeln",
     description: "Öffentliche Kurs-Snippets, Formatierung — optional zu Nemesis Studio",
