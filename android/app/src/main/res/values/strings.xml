@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Nemesis Studio</string>
+    <string name="title_activity_main">Nemesis Studio</string>
+    <string name="package_name">com.nemesis.studio</string>
+    <string name="custom_url_scheme">com.nemesis.studio</string>
+</resources>
