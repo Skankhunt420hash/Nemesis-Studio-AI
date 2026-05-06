@@ -107,7 +107,8 @@ export function TradeAnalysisPanel({ agentId }: { agentId: string }) {
           />
           <p className="text-[10px] text-[#6a6a6a]">
             Modell = gewähltes <strong className="text-[#858585]">Agenten-Profil</strong> — für
-            ausführliche Reviews z. B. <strong className="text-[#858585]">Blueprint</strong> (Premium).
+            Markt-Setups oft <strong className="text-[#858585]">Krypto-Analyst</strong>, für reinen
+            Logik-Check <strong className="text-[#858585]">Blueprint</strong> (Premium).
           </p>
           <button
             type="button"
