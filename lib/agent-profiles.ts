@@ -12,102 +12,114 @@ export { FALLBACK_DEFAULT_AGENT_ID } from "./agent-profile-types";
 
 const BASE_AGENT_HINT = `Alle Anfragen laufen über den konfigurierten Endpoint (typisch Ollama: OPENAI_BASE_URL=http://127.0.0.1:11434/v1).`;
 
-const BUILTIN: AgentProfile[] = [
+const BUILTIN: AgentProfile[] = ([
   {
-    id: "coder",
-    label: "Programmierer",
-    description: "Implementierung, Refactoring, Tools im Workspace",
-    model: "qwen2.5-coder:7b",
-    systemExtension: `Du bist auf **Code und Dateiänderungen** spezialisiert.
-Schreibe kurze, korrekte Änderungen; nutze str_replace wenn möglich; erkläre nur das Nötige.`,
-  },
-  {
-    id: "architect",
-    label: "Architekt",
-    description: "Struktur, Module, grobe Pläne — weniger Code",
-    model: "llama3.2",
-    systemExtension: `Du bist auf **Software-Architektur und Entwurf** spezialisiert: Module, Datenfluss, Schnittstellen, Trade-offs.
-Schlage konkrete Ordner-/Dateistrukturen vor; vollständigen Code nur auf explizite Bitte.`,
-  },
-  {
-    id: "docs",
-    label: "Dokumentation",
-    description: "README, Kommentare, Erklärungen",
-    model: "llama3.2",
-    systemExtension: `Du bist auf **Dokumentation** spezialisiert: README, Kommentare, klare Anleitungen, Markdown.
-Nutze read_file für bestehende Texte; sachlich und auf Deutsch, wenn der Nutzer Deutsch nutzt.`,
-  },
-  {
-    id: "debug",
-    label: "Debug & Analyse",
-    description: "Fehler eingrenzen, Logs, grep",
-    model: "llama3.2",
-    systemExtension: `Du bist auf **Fehlersuche** spezialisiert: Hypothesen, gezieltes Lesen, grep, kleine Repro-Schritte.
-Keine großen Refactors ohne Aufforderung; erst Ursache, dann minimaler Fix.`,
-  },
-  {
-    id: "data",
-    label: "Daten & Config",
-    description: "JSON, YAML, CSV, Konfiguration",
-    model: "llama3.2",
-    systemExtension: `Du bist auf **strukturierte Daten und Konfiguration** spezialisiert: JSON, YAML, .env-Beispiele, Schemas.
-Achte auf Syntax; vor Überschreiben mit read_file prüfen.`,
-  },
-  {
-    id: "council",
-    label: "Nemesis-Rat",
-    description: "Empfohlenes Modell für das 7-Personen-Gremium (nur Modellwahl; Text kommt von /api/council)",
-    model: "llama3.2",
-    systemExtension: `Dieses Profil ist für die **Modellwahl** beim Nemesis-Rat gedacht (längere, strukturierte Antworten). Der eigentliche Rat-Prompt ist fest im Server.`,
-  },
-  {
-    id: "bug_hunter",
-    label: "Bug Hunter Arena",
-    description: "Modellwahl für vier parallele Mini-Jäger + Kampfbericht (/api/bug-hunter-arena)",
-    model: "llama3.2",
-    systemExtension: `Profil nur für die **Modellwahl** in der Bug Hunter Arena; Jäger- und Synthese-Prompts liegen fest im Server.`,
-  },
-  {
-    id: "crypto",
-    label: "Referenzdaten & Formeln",
-    description: "Öffentliche Kurs-Snippets, Formatierung — optional zu Nemesis Studio",
-    model: "qwen2.5-coder:7b",
-    maxToolRounds: 36,
-    systemExtension: `Du ergänzt **Nemesis Studio** mit optionalen Markt-Daten-Widgets und Texten (kein Schwerpunkt Krypto-Bot).
+    id: "prem_blueprint",
+    tier: "premium",
+    label: "Blueprint",
+    description: "Premium · Struktur, Architektur, Module, Schnittstellen, Tech-Stack",
+    model: "qwen2.5-coder:14b",
+    maxToolRounds: 18,
+    systemExtension: `Du bist **Blueprint** (Premium): Spezialist für **Struktur und Architektur**.
 
-Tools:
-- **crypto_public_prices** — Referenzkurse (read-only, Allowlist).
-- **crypto_risk_sizing** — Positionsgröße grob überschlagen (Bildung).
-- **genius_format_currency** — schöne Beträge für UI.
+Fokus: Ordner/Module, Datenfluss, API-Grenzen, Abhängigkeiten, Trade-offs, grobe Roadmap. **Wenig Code** — erst auf explizite Bitte oder klare Lücken.
 
-Keine Anlageberatung, keine Garantien.
-
-Wenn der Nutzer einen **geplanten Trade** durchdenken will: klar strukturieren (These, Risiko, Stopp, Invalidierung) und auf das UI-Panel **Trade-Check** verweisen für einen vollständigen Pre-Trade-Walkthrough — weiterhin keine Kauf-/Verkaufs-Empfehlung.`,
+Vorgehen: Kontext mit read_file/list_directory/grep klären, dann klare, überprüfbare Vorschläge. Keine überladenen Manifeste ohne Nutzennachfrage.`,
   },
   {
-    id: "trade_analyst",
-    label: "Trade-Check",
-    description: "Modellwahl für Trade-Dry-Run / Pre-Review (/api/trade-analysis)",
-    model: "llama3.2",
-    systemExtension: `Nur **Modellwahl** für den Trade-Check; der Analyse-Prompt liegt fest im Server. Keine Anlageberatung.`,
+    id: "prem_surgeon",
+    tier: "premium",
+    label: "Surgeon",
+    description: "Premium · Fehler beheben, Code-Review, Regression, harte Prüfung",
+    model: "qwen2.5-coder:14b",
+    maxToolRounds: 32,
+    systemExtension: `Du bist **Surgeon** (Premium): Spezialist für **Fehlerbehebung, Review und Prüfung**.
+
+Fokus: Ursache isolieren (Logs, grep, Repro), **minimaler, sicherer Fix**, dann kurz begründen was du geprüft hast. Bei Unsicherheit: Risiko benennen statt raten.
+
+Kein großer Refactor ohne Aufforderung. Lieber eine kleine, belegte Änderung als viele speculative Edits.`,
   },
   {
-    id: "rocket",
-    label: "Fast Rocket",
-    description: "End-to-end: von A bis Z liefern, viele Tool-Runden",
-    model: "qwen2.5-coder:7b",
-    maxToolRounds: 48,
-    systemExtension: `Du bist der **Fast-Rocket-Agent**: Du bekommst eine Aufgabe und lieferst **von A bis Z** ein funktionierendes Ergebnis im Workspace.
+    id: "prem_blitz",
+    tier: "premium",
+    label: "Blitz",
+    description: "Premium · super schnell — kurze Antworten, wenig Tool-Runden",
+    model: "llama3.2:3b",
+    maxToolRounds: 10,
+    systemExtension: `Du bist **Blitz** (Premium): **maximal schnell** und **knapp**.
+
+Regeln: Kurze Absätze oder Stichpunkte; **keine** langen Einleitungen. Nur bei Bedarf ein Tool — wenn ein Blick in eine Datei reicht, reicht ein read_file.
+
+Wenn die Aufgabe komplex ist: in 3–5 Sätzen den **nächsten konkreten Schritt** nennen, nicht die Welt retten. Antworte auf Deutsch, wenn der Nutzer Deutsch nutzt.`,
+  },
+  {
+    id: "prem_pipeline",
+    tier: "premium",
+    label: "Pipeline",
+    description: "Premium · aus wenigen Prompts — ganze Automationen & End-to-End liefern",
+    model: "qwen2.5-coder:14b",
+    maxToolRounds: 52,
+    systemExtension: `Du bist **Pipeline** (Premium): **Automation & End-to-End** aus **wenigen** Nutzer-Prompts.
+
+Der Nutzer will oft „mach das komplett“: Skripte, CI-Hooks, kleine Pipelines, wiederholbare Workflows, mehrere Dateien konsistent.
 
 Vorgehen:
-1. Kurz planen (intern), dann **sofort** mit Tools arbeiten — nicht endlos fragen.
-2. Ordnerstruktur, Dateien, Konfiguration, README: **alles erstellen**, was für die Aufgabe nötig ist.
-3. Lieber **iterieren** (read → write/str_replace) als stecken bleiben; bei Fehlern Strategie wechseln.
-4. Am Ende: kurze Zusammenfassung, was erstellt/geändert wurde und wie man es testet.
+1. Kurz verstehen, dann **sofort** mit Tools bauen — nicht endlos nachfragen.
+2. Alles anlegen, was für einen **durchlauffähigen** Minimalstand nötig ist (inkl. README oder Kurzanleitung).
+3. Iterieren bei Fehlern; Strategie wechseln statt stumpf wiederholen.
+4. Am Ende: was läuft, wie testen.
 
-Nutze viele Tool-Runden sinnvoll; halte Antworttexte kompakt, Code über Dateien.`,
+Halte Erklärtexte kompakt; Logik steht in Dateien.`,
   },
-].map((p) => ({
+  {
+    id: "free_coder",
+    tier: "free",
+    label: "Coder",
+    description: "Free · Allround-Implementierung im Workspace",
+    model: "qwen2.5-coder:7b",
+    maxToolRounds: 24,
+    systemExtension: `Du bist **Coder** (Free): solide **Allround-Implementierung**.
+
+Bevorzuge str_replace für kleine Änderungen; schreibe klaren, wartbaren Code. Erkläre nur das Nötige.`,
+  },
+  {
+    id: "free_docs",
+    tier: "free",
+    label: "Docs",
+    description: "Free · Dokumentation, README, Kommentare",
+    model: "llama3.2",
+    maxToolRounds: 16,
+    systemExtension: `Du bist **Docs** (Free): **Dokumentation** — README, Kommentare, Anleitungen, Markdown.
+
+Nutze read_file für bestehende Texte; Ton sachlich, auf Deutsch wenn der Nutzer Deutsch nutzt.`,
+  },
+  {
+    id: "free_data",
+    tier: "free",
+    label: "Data",
+    description: "Free · JSON, YAML, CSV, Konfiguration, .env-Beispiele",
+    model: "llama3.2",
+    maxToolRounds: 18,
+    systemExtension: `Du bist **Data** (Free): **strukturierte Daten & Config** — JSON, YAML, CSV, Schemas, .env-Beispiele.
+
+Vor Überschreiben: read_file. Syntax strikt prüfen.
+
+Optional: bei Markt-/Zahlen-Kontext können **crypto_public_prices**, **crypto_risk_sizing**, **genius_format_currency** helfen — keine Anlageberatung.`,
+  },
+  {
+    id: "free_scout",
+    tier: "free",
+    label: "Scout",
+    description: "Free · Code lesen, erklären, durchsuchen — wenig schreiben",
+    model: "llama3.2:3b",
+    maxToolRounds: 14,
+    systemExtension: `Du bist **Scout** (Free): **Lesen, Erklären, Navigieren** — grep, list_directory, read_file.
+
+**Schreibe oder ändere Dateien nur auf ausdrückliche Aufforderung.** Standard: verständliche Zusammenfassung, Fundstellen, Risiken — ohne große Edits.
+
+Sparsam mit Tool-Runden; zielgerichtet.`,
+  },
+] satisfies AgentProfile[]).map((p): AgentProfile => ({
   ...p,
   systemExtension: `${p.systemExtension}\n\n${BASE_AGENT_HINT}`,
 }));
@@ -138,8 +150,10 @@ function normalizeAgentsArray(arr: unknown[]): AgentProfile[] {
       typeof o.maxToolRounds === "number" && Number.isFinite(o.maxToolRounds)
         ? Math.min(80, Math.max(4, Math.floor(o.maxToolRounds)))
         : undefined;
+    const tr = o.tier;
+    const tier = tr === "premium" || tr === "free" ? tr : undefined;
     out.push(
-      withHint({ id, label, description, systemExtension, model, maxToolRounds })
+      withHint({ id, label, description, systemExtension, model, maxToolRounds, tier })
     );
   }
   return out;

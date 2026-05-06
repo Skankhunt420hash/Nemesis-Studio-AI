@@ -912,15 +912,38 @@ export function AgentPanel({
             {profiles.length === 0 ? (
               <option value="">Agenten werden geladen…</option>
             ) : (
-              profiles.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.label} → {p.model || "(OPENAI_MODEL)"}
-                </option>
-              ))
+              <>
+                {(() => {
+                  const premium = profiles.filter((p) => p.tier === "premium");
+                  const free = profiles.filter((p) => p.tier === "free");
+                  const rest = profiles.filter((p) => p.tier !== "premium" && p.tier !== "free");
+                  const row = (p: AgentProfile) => (
+                    <option key={p.id} value={p.id}>
+                      {p.label} → {p.model || "(OPENAI_MODEL)"}
+                    </option>
+                  );
+                  return (
+                    <>
+                      {premium.length ? (
+                        <optgroup label="★ Premium">{premium.map(row)}</optgroup>
+                      ) : null}
+                      {free.length ? <optgroup label="Free">{free.map(row)}</optgroup> : null}
+                      {rest.length ? (
+                        <optgroup label="Weitere">{rest.map(row)}</optgroup>
+                      ) : null}
+                    </>
+                  );
+                })()}
+              </>
             )}
           </select>
           <p className="text-[11px] leading-snug text-[#858585]">
             {activeProfile?.description ?? "—"}
+            {activeProfile?.tier === "premium" ? (
+              <span className="ml-1 text-[#dcdcaa]">· ★ Premium</span>
+            ) : activeProfile?.tier === "free" ? (
+              <span className="ml-1 text-[#6a9955]">· Free</span>
+            ) : null}
           </p>
           <p className="font-mono text-[10px] text-[#569cd6]">
             Modell: {activeProfile?.model || "aus .env"}

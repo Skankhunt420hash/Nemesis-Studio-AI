@@ -106,8 +106,8 @@ export function TradeAnalysisPanel({ agentId }: { agentId: string }) {
             className="w-full resize-y rounded border border-[#3c3c3c] bg-[#1e1e1e] px-2 py-1.5 text-[12px] text-[#cccccc] placeholder:text-[#6a6a6a] disabled:opacity-50"
           />
           <p className="text-[10px] text-[#6a6a6a]">
-            Modell = gewähltes <strong className="text-[#858585]">Agenten-Profil</strong> (Profil
-            „Trade-Check“ ist dafür vorgesehen).
+            Modell = gewähltes <strong className="text-[#858585]">Agenten-Profil</strong> — für
+            ausführliche Reviews z. B. <strong className="text-[#858585]">Blueprint</strong> (Premium).
           </p>
           <button
             type="button"

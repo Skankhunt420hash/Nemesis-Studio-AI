@@ -1,12 +1,22 @@
 {
-  "defaultAgentId": "coder",
+  "defaultAgentId": "free_coder",
   "agents": [
     {
-      "id": "mein-agent",
-      "label": "Mein Agent",
+      "id": "mein_premium_agent",
+      "tier": "premium",
+      "label": "Mein Premium-Agent",
       "description": "Kurzbeschreibung für die UI",
+      "model": "qwen2.5-coder:14b",
+      "maxToolRounds": 24,
+      "systemExtension": "Spezialität und Verhalten. Diese Datei nach agents.json kopieren oder agents.json direkt bearbeiten.\n\ntier: \"premium\" | \"free\" — steuert die Gruppierung im Dropdown."
+    },
+    {
+      "id": "mein_free_agent",
+      "tier": "free",
+      "label": "Mein Free-Agent",
+      "description": "…",
       "model": "llama3.2",
-      "systemExtension": "Hier steht, wie sich der Agent verhalten soll. Diese Datei nach agents.json kopieren oder agents.json direkt bearbeiten."
+      "systemExtension": "…"
     }
   ]
 }

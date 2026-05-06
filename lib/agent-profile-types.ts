@@ -8,6 +8,8 @@ export type AgentProfile = {
   systemExtension: string;
   /** Optional: mehr Tool-Runden (z. B. Fast Rocket). Standard: Server-Default. */
   maxToolRounds?: number;
+  /** UI-Gruppierung: Premium vs. Free (optional). */
+  tier?: "premium" | "free";
 };
 
-export const FALLBACK_DEFAULT_AGENT_ID = "coder";
+export const FALLBACK_DEFAULT_AGENT_ID = "free_coder";

@@ -106,7 +106,8 @@ export function CouncilPanel({ agentId }: { agentId: string }) {
           />
           <p className="text-[10px] text-[#6a6a6a]">
             Modell = aktuell gewähltes <strong className="text-[#858585]">Agenten-Profil</strong> oben
-            (Profil „Nemesis-Rat“ ist dafür vorgesehen).
+            — für längere Ratssitzungen eignet sich z. B. <strong className="text-[#858585]">Blueprint</strong>{" "}
+            (Premium).
           </p>
           <button
             type="button"
