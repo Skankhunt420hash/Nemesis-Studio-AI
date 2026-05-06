@@ -115,6 +115,10 @@ export function AgentPanel({
   workspaceDirs = [],
   verhoerPrefill,
   onConsumeVerhoerPrefill,
+  layout = "desktop",
+  onMobileBack,
+  mobilePickedAgentId = null,
+  onMobileOpenFiles,
 }: {
   onAfterAgentRun?: () => void;
   /** Nach erfolgreichem Rückgängig: Workspace/Editor neu laden; Snapshots für Zeitreise-Korrektur. */
@@ -127,6 +131,14 @@ export function AgentPanel({
   /** Aus Diff-Modal „Verhör“: nächste Nachricht anreichern + Socratic aktivieren. */
   verhoerPrefill?: { socratic: boolean; appendix: string } | null;
   onConsumeVerhoerPrefill?: () => void;
+  /** Mobile: kompakter Chat wie Cursor Mobile; Desktop unverändert. */
+  layout?: "desktop" | "mobile";
+  /** Zurück zur Agentenwahl (nur Mobile). */
+  onMobileBack?: () => void;
+  /** Nach Picker: dieses Profil aktivieren (nur Mobile). */
+  mobilePickedAgentId?: string | null;
+  /** Workspace-Dateien öffnen (Sheet in page.tsx). */
+  onMobileOpenFiles?: () => void;
 }) {
   const [threadStore, setThreadStore] = useState<ChatThreadsStore | null>(null);
   const [input, setInput] = useState("");
@@ -172,6 +184,9 @@ export function AgentPanel({
   const soulMemoryRef = useRef<SoulMemoryState>(emptySoulMemory());
   const lastUserForSoulRef = useRef("");
 
+  const [mobileDrawer, setMobileDrawer] = useState<null | "threads" | "settings">(null);
+  const [mobileSavedHint, setMobileSavedHint] = useState<string>("");
+
   /* eslint-disable react-hooks/set-state-in-effect -- Chat-Verläufe aus localStorage nach Client-Mount */
   useEffect(() => {
     setThreadStore(loadChatThreads());
@@ -189,6 +204,17 @@ export function AgentPanel({
   useEffect(() => {
     if (threadStore) saveChatThreads(threadStore);
   }, [threadStore]);
+
+  useEffect(() => {
+    if (layout !== "mobile" || !threadStore) return;
+    const h = window.setTimeout(() => {
+      const d = new Date();
+      setMobileSavedHint(
+        `Gespeichert ${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`
+      );
+    }, 280);
+    return () => window.clearTimeout(h);
+  }, [layout, threadStore]);
 
   useEffect(() => {
     try {
@@ -236,7 +262,15 @@ export function AgentPanel({
         if (!list.some((p) => p.id === pick)) pick = list[0].id;
         try {
           const s = localStorage.getItem("nemesis_agent_id");
-          if (s && list.some((p) => p.id === s)) pick = s;
+          if (
+            layout === "mobile" &&
+            mobilePickedAgentId &&
+            list.some((p) => p.id === mobilePickedAgentId)
+          ) {
+            pick = mobilePickedAgentId;
+          } else if (s && list.some((p) => p.id === s)) {
+            pick = s;
+          }
         } catch {
           /* ignore */
         }
@@ -249,7 +283,7 @@ export function AgentPanel({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [layout, mobilePickedAgentId]);
 
   useEffect(() => {
     agentIdRef.current = agentId || FALLBACK_DEFAULT_AGENT_ID;
@@ -829,9 +863,8 @@ export function AgentPanel({
     !agentId ||
     !threadStore;
 
-  return (
-    <div className="flex h-full min-h-0 border-l border-[#3c3c3c] bg-[#252526]">
-      <aside className="flex w-[132px] shrink-0 flex-col border-r border-[#3c3c3c] bg-[#252526]">
+  const threadAside = (
+      <aside className="flex w-[132px] shrink-0 flex-col border-r border-[#3c3c3c] bg-[#252526] md:w-[140px]">
         <div className="shrink-0 border-b border-[#3c3c3c] px-2 py-1.5 text-[10px] font-medium uppercase tracking-wide text-[#858585]">
           Chats
         </div>
@@ -878,26 +911,9 @@ export function AgentPanel({
           </button>
         </div>
       </aside>
+  );
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-[#1e1e1e]">
-        <header className="shrink-0 border-b border-[#3c3c3c] bg-[#252526] px-3 py-2">
-          <div className="text-[12px] font-semibold text-[#cccccc]">Agent &amp; Chat</div>
-          <div className="text-[10px] leading-snug text-[#858585]">
-            Modell wählen, Kontext anhängen, Aufgabe senden — Antworten und Tool-Läufe erscheinen
-            unten.
-          </div>
-        </header>
-
-        <GeniusToolbox />
-
-        <TradeAnalysisPanel agentId={agentId || FALLBACK_DEFAULT_AGENT_ID} />
-
-        <CouncilPanel agentId={agentId || FALLBACK_DEFAULT_AGENT_ID} />
-
-        <BugHunterArenaPanel agentId={agentId || FALLBACK_DEFAULT_AGENT_ID} />
-
-        <SoulMemoryPanel value={soulMemory} onChange={setSoulMemory} getLastUserMessage={getLastUserMessage} />
-
+  const agentProfileBlock = (
         <div className="shrink-0 space-y-2 border-b border-[#3c3c3c] p-2">
           <div className="rounded-lg border border-[#454545] bg-[#252526] p-2 shadow-sm">
             <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wide text-[#9cdcfe]">
@@ -965,8 +981,97 @@ export function AgentPanel({
           ) : null}
           </div>
         </div>
+  );
 
-        <div className="min-h-0 flex-1 overflow-y-auto bg-[#1e1e1e] px-2 py-2">
+  const studioExtras = (
+    <>
+      <GeniusToolbox />
+      <TradeAnalysisPanel agentId={agentId || FALLBACK_DEFAULT_AGENT_ID} />
+      <CouncilPanel agentId={agentId || FALLBACK_DEFAULT_AGENT_ID} />
+      <BugHunterArenaPanel agentId={agentId || FALLBACK_DEFAULT_AGENT_ID} />
+      <SoulMemoryPanel
+        value={soulMemory}
+        onChange={setSoulMemory}
+        getLastUserMessage={getLastUserMessage}
+      />
+    </>
+  );
+
+  return (
+    <>
+      <div
+        className={`flex h-full min-h-0 w-full min-w-0 ${
+          layout === "mobile"
+            ? "flex-col bg-transparent"
+            : "border-l border-[#3c3c3c] bg-[#252526]"
+        }`}
+      >
+        {layout === "desktop" ? threadAside : null}
+
+        <div
+          className={`flex min-h-0 min-w-0 flex-1 flex-col ${
+            layout === "mobile" ? "min-h-0 bg-black/20 backdrop-blur-md" : "bg-[#1e1e1e]"
+          }`}
+        >
+          {layout === "mobile" ? (
+            <div className="flex shrink-0 items-center gap-1.5 border-b border-white/10 bg-gradient-to-r from-violet-950/85 via-purple-900/55 to-amber-900/45 px-2 py-2 backdrop-blur-xl pt-[max(0.5rem,env(safe-area-inset-top))]">
+              <button
+                type="button"
+                onClick={() => onMobileBack?.()}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-lg text-white hover:bg-white/20"
+                aria-label="Zur Agentenwahl"
+              >
+                ←
+              </button>
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-[14px] font-semibold text-white">
+                  {activeProfile?.label ?? "Agent"}
+                </div>
+                <div className="truncate text-[10px] text-amber-200/90">
+                  {mobileSavedHint || "Automatisch gespeichert · Local"}
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileDrawer("threads")}
+                className="rounded-full border border-violet-300/40 bg-violet-500/25 px-2.5 py-1.5 text-[11px] font-medium text-violet-50"
+              >
+                Chats
+              </button>
+              <button
+                type="button"
+                onClick={() => onMobileOpenFiles?.()}
+                className="rounded-full border border-amber-300/45 bg-amber-400/25 px-2.5 py-1.5 text-[11px] font-medium text-amber-50"
+              >
+                Datei
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileDrawer("settings")}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/25 bg-white/10 text-[15px] text-white hover:bg-white/20"
+                aria-label="Einstellungen"
+              >
+                ⚙
+              </button>
+            </div>
+          ) : (
+            <header className="shrink-0 border-b border-[#3c3c3c] bg-[#252526] px-3 py-2">
+              <div className="text-[12px] font-semibold text-[#cccccc]">Agent &amp; Chat</div>
+              <div className="text-[10px] leading-snug text-[#858585]">
+                Modell wählen, Kontext anhängen, Aufgabe senden — Antworten und Tool-Läufe erscheinen
+                unten.
+              </div>
+            </header>
+          )}
+
+          {layout === "desktop" ? studioExtras : null}
+          {layout === "desktop" ? agentProfileBlock : null}
+
+          <div
+            className={`min-h-0 flex-1 overflow-y-auto px-2 py-2 ${
+              layout === "mobile" ? "bg-transparent" : "bg-[#1e1e1e]"
+            }`}
+          >
           <div className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-[#858585]">
             Konversation
           </div>
@@ -975,16 +1080,26 @@ export function AgentPanel({
               <div key={`${threadStore?.activeId ?? "x"}-${i}`}>
                 <div
                   className={`mb-1 text-[10px] font-semibold uppercase tracking-wider ${
-                    msg.role === "user" ? "text-[#4ec9b0]" : "text-[#569cd6]"
+                    msg.role === "user"
+                      ? layout === "mobile"
+                        ? "text-amber-200"
+                        : "text-[#4ec9b0]"
+                      : layout === "mobile"
+                        ? "text-violet-200"
+                        : "text-[#569cd6]"
                   }`}
                 >
                   {msg.role === "user" ? "Du" : "Agent"}
                 </div>
                 <div
-                  className={`rounded-lg px-3 py-2 ${
-                    msg.role === "user"
-                      ? "bg-[#2d2d30] text-[#d4d4d4]"
-                      : "bg-[#252526] text-[#d4d4d4]"
+                  className={`rounded-2xl px-3 py-2 ${
+                    layout === "mobile"
+                      ? msg.role === "user"
+                        ? "border border-amber-300/35 bg-gradient-to-br from-violet-600/85 via-fuchsia-500/55 to-amber-300/80 text-[#1a0520] shadow-lg shadow-violet-900/30"
+                        : "border border-white/20 bg-white/12 text-white backdrop-blur-md"
+                      : msg.role === "user"
+                        ? "rounded-lg bg-[#2d2d30] text-[#d4d4d4]"
+                        : "rounded-lg bg-[#252526] text-[#d4d4d4]"
                   }`}
                 >
                   <ChatMarkdown text={msg.content} />
@@ -1045,8 +1160,14 @@ export function AgentPanel({
         </div>
 
         <div
-          className={`shrink-0 border-t border-[#3c3c3c] bg-[#252526] p-2 transition-shadow ${
-            dropHighlight ? "ring-2 ring-inset ring-[#007fd4]/70" : ""
+          className={`shrink-0 p-2 transition-shadow ${
+            layout === "mobile"
+              ? `border-t border-white/10 bg-black/35 backdrop-blur-xl pb-[max(0.5rem,env(safe-area-inset-bottom))] ${
+                  dropHighlight ? "ring-2 ring-inset ring-violet-400/50" : ""
+                }`
+              : `border-t border-[#3c3c3c] bg-[#252526] ${
+                  dropHighlight ? "ring-2 ring-inset ring-[#007fd4]/70" : ""
+                }`
           }`}
           onDragEnter={handleDragEnter}
           onDragLeave={handleDragLeave}
@@ -1310,7 +1431,11 @@ export function AgentPanel({
               type="button"
               onClick={() => void send()}
               disabled={chatDisabled}
-              className="min-w-0 flex-1 rounded bg-[#0e639c] py-2 text-[13px] font-medium text-white hover:bg-[#1177bb] disabled:cursor-not-allowed disabled:opacity-40"
+              className={`min-w-0 flex-1 rounded py-2 text-[13px] font-medium text-white disabled:cursor-not-allowed disabled:opacity-40 ${
+                layout === "mobile"
+                  ? "bg-gradient-to-r from-violet-600 to-amber-500 shadow-md shadow-violet-900/40 hover:from-violet-500 hover:to-amber-400"
+                  : "bg-[#0e639c] hover:bg-[#1177bb]"
+              }`}
             >
               {loading ? "Agent arbeitet…" : "Ausführen"}
             </button>
@@ -1335,5 +1460,61 @@ export function AgentPanel({
         </div>
       </div>
     </div>
+
+      {layout === "mobile" && mobileDrawer === "threads" ? (
+        <div
+          className="fixed inset-0 z-50 flex flex-col bg-[#0c0615]/92 backdrop-blur-md"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Chats"
+        >
+          <div className="flex items-center justify-between border-b border-white/10 px-3 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+            <span className="text-[15px] font-semibold text-white">Chats</span>
+            <button
+              type="button"
+              onClick={() => setMobileDrawer(null)}
+              className="rounded-full border border-white/20 px-3 py-1 text-[13px] text-white"
+            >
+              Fertig
+            </button>
+          </div>
+          <div className="min-h-0 flex-1 overflow-hidden px-2 pb-4">
+            <div className="h-full w-full overflow-y-auto rounded-xl border border-white/10 bg-[#1a1425]/95 [&>aside]:w-full [&>aside]:max-w-none">
+              {threadAside}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {layout === "mobile" && mobileDrawer === "settings" ? (
+        <div
+          className="fixed inset-0 z-50 flex flex-col bg-[#0c0615]/94 backdrop-blur-md"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Einstellungen"
+        >
+          <div className="flex items-center justify-between border-b border-white/10 px-3 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+            <span className="text-[15px] font-semibold text-white">Einstellungen</span>
+            <button
+              type="button"
+              onClick={() => setMobileDrawer(null)}
+              className="rounded-full border border-white/20 px-3 py-1 text-[13px] text-white"
+            >
+              Fertig
+            </button>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-[max(1rem,env(safe-area-inset-bottom))]">
+            <p className="mb-3 text-[11px] leading-snug text-amber-200/80">
+              Chats werden automatisch im Browser gespeichert. Agent wechseln, Soul Memory und
+              Studio-Extras:
+            </p>
+            <div className="space-y-3 rounded-xl border border-violet-400/25 bg-black/30 p-2">
+              {agentProfileBlock}
+            </div>
+            <div className="mt-3 space-y-2 border-t border-white/10 pt-3">{studioExtras}</div>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }

@@ -12,6 +12,9 @@ import { FileTree, type TreeNode } from "@/components/FileTree";
 import { ShortcutsModal } from "@/components/ShortcutsModal";
 import { StudioOverviewBar } from "@/components/StudioOverviewBar";
 import { TerminalPanel } from "@/components/TerminalPanel";
+import { MobileAgentPicker } from "@/components/MobileAgentPicker";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import type { AgentProfile } from "@/lib/agent-profile-types";
 import { flattenTreeDirs, flattenTreeFiles } from "@/lib/flatten-tree";
 import { computeChangedLineNumbers } from "@/lib/diff-line-highlight";
 import type { UndoSnapshot } from "@/lib/agent-types";
@@ -48,6 +51,13 @@ export default function Home() {
     socratic: boolean;
     appendix: string;
   } | null>(null);
+
+  const isMobile = useIsMobile();
+  const [mobilePhase, setMobilePhase] = useState<"agents" | "chat">("agents");
+  const [mobilePickedAgent, setMobilePickedAgent] = useState<string | null>(null);
+  const [mobileProfiles, setMobileProfiles] = useState<AgentProfile[]>([]);
+  const [mobileProfilesLoaded, setMobileProfilesLoaded] = useState(false);
+  const [mobileFilesOpen, setMobileFilesOpen] = useState(false);
 
   const flatFiles = useMemo(() => flattenTreeFiles(tree), [tree]);
   const flatDirs = useMemo(() => flattenTreeDirs(tree), [tree]);
@@ -108,6 +118,26 @@ export default function Home() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!isMobile) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch("/api/agents");
+        const data = (await res.json()) as { agents?: AgentProfile[] };
+        if (cancelled) return;
+        setMobileProfiles(data.agents ?? []);
+      } catch {
+        if (!cancelled) setMobileProfiles([]);
+      } finally {
+        if (!cancelled) setMobileProfilesLoaded(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isMobile]);
 
   const openOrFocusTab = useCallback(async (rel: string) => {
     if (buffers[rel]) {
@@ -309,6 +339,103 @@ export default function Home() {
   );
 
   const langLabel = activePath ? languageFromPath(activePath) : "—";
+
+  if (isMobile) {
+    return (
+      <>
+        {mobilePhase === "agents" ? (
+          <MobileAgentPicker
+            profiles={mobileProfiles}
+            loading={!mobileProfilesLoaded && mobileProfiles.length === 0}
+            onSelect={(id) => {
+              setMobilePickedAgent(id);
+              setMobilePhase("chat");
+            }}
+          />
+        ) : (
+          <div className="relative flex h-[100dvh] flex-col overflow-hidden bg-[#0f0a18]">
+            <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+              <div
+                className="absolute -left-[25%] top-[-20%] h-[60vmin] w-[60vmin] rounded-full opacity-80 blur-[70px]"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(167, 139, 250, 0.9), rgba(91, 33, 182, 0.35) 55%, transparent 72%)",
+                }}
+              />
+              <div
+                className="absolute -right-[20%] bottom-[-15%] h-[55vmin] w-[55vmin] rounded-full opacity-85 blur-[64px]"
+                style={{
+                  background:
+                    "radial-gradient(circle, rgba(253, 224, 71, 0.85), rgba(217, 119, 6, 0.4) 50%, transparent 70%)",
+                }}
+              />
+              <div className="absolute inset-0 bg-[#0f0a18]/88" />
+            </div>
+            <AgentPanel
+              layout="mobile"
+              mobilePickedAgentId={mobilePickedAgent}
+              onMobileBack={() => setMobilePhase("agents")}
+              onMobileOpenFiles={() => setMobileFilesOpen(true)}
+              onAfterAgentRun={afterAgent}
+              onAfterUndo={(snaps) => void afterAgent({ skipDiff: true, undoSnapshots: snaps })}
+              onWorkspaceUploaded={() => void refreshTree()}
+              activeFilePath={activePath}
+              workspaceFiles={flatFiles}
+              workspaceDirs={flatDirs}
+              verhoerPrefill={verhoerPrefill}
+              onConsumeVerhoerPrefill={() => setVerhoerPrefill(null)}
+            />
+          </div>
+        )}
+
+        {mobileFilesOpen ? (
+          <div
+            className="fixed inset-0 z-[60] flex flex-col bg-[#0c0615]/96 backdrop-blur-md"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Workspace-Dateien"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 px-3 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+              <span className="text-[15px] font-semibold text-white">Datei aus Workspace</span>
+              <button
+                type="button"
+                onClick={() => setMobileFilesOpen(false)}
+                className="rounded-full border border-white/20 px-3 py-1 text-[13px] text-white"
+              >
+                Fertig
+              </button>
+            </div>
+            <p className="px-3 py-2 text-[11px] leading-snug text-amber-200/85">
+              Tippe eine Datei — sie wird fokussiert; im Chat unter Einstellungen kannst du sie als
+              Kontext anhängen („Offene Datei“).
+            </p>
+            <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-[max(1rem,env(safe-area-inset-bottom))]">
+              <div className="rounded-xl border border-violet-500/25 bg-[#1a1425]/90 p-1">
+                <FileTree
+                  tree={tree}
+                  onSelectFile={(p) => {
+                    void openOrFocusTab(p);
+                    setMobileFilesOpen(false);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {diff ? (
+          <DiffModal
+            open
+            path={diff.path}
+            original={diff.original}
+            modified={diff.modified}
+            onClose={() => setDiff(null)}
+            onVerhoer={(p) => setVerhoerPrefill(p)}
+          />
+        ) : null}
+      </>
+    );
+  }
 
   return (
     <div className="flex h-screen flex-col bg-[#1e1e1e] font-sans text-[#cccccc]">
