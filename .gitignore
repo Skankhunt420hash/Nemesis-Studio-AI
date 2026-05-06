@@ -42,3 +42,11 @@ next-env.d.ts
 
 # Agent-Workspace (lokal, nicht ins Repo)
 /agent-workspace/
+
+# Capacitor / Android (Build-Artefakte)
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+android/capacitor-cordova-android-plugins/
+android/app/src/main/assets/public/

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Nemesis Studio</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: system-ui, sans-serif;
+        background: #0f0a18;
+        color: #e9d5ff;
+      }
+    </style>
+  </head>
+  <body>
+    <p style="padding: 1rem; text-align: center; max-width: 20rem">
+      Wenn du <strong>CAP_SERVER_URL</strong> gesetzt hast, lädt die App dort. Sonst bitte in
+      <code>capacitor.config.ts</code> bzw. Umgebungsvariable konfigurieren und
+      <code>npx cap sync android</code> ausführen.
+    </p>
+  </body>
+</html>
