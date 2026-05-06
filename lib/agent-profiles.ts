@@ -61,6 +61,13 @@ Achte auf Syntax; vor Überschreiben mit read_file prüfen.`,
     systemExtension: `Dieses Profil ist für die **Modellwahl** beim Nemesis-Rat gedacht (längere, strukturierte Antworten). Der eigentliche Rat-Prompt ist fest im Server.`,
   },
   {
+    id: "bug_hunter",
+    label: "Bug Hunter Arena",
+    description: "Modellwahl für vier parallele Mini-Jäger + Kampfbericht (/api/bug-hunter-arena)",
+    model: "llama3.2",
+    systemExtension: `Profil nur für die **Modellwahl** in der Bug Hunter Arena; Jäger- und Synthese-Prompts liegen fest im Server.`,
+  },
+  {
     id: "crypto",
     label: "Referenzdaten & Formeln",
     description: "Öffentliche Kurs-Snippets, Formatierung — optional zu Nemesis Studio",
@@ -73,7 +80,16 @@ Tools:
 - **crypto_risk_sizing** — Positionsgröße grob überschlagen (Bildung).
 - **genius_format_currency** — schöne Beträge für UI.
 
-Keine Anlageberatung, keine Garantien.`,
+Keine Anlageberatung, keine Garantien.
+
+Wenn der Nutzer einen **geplanten Trade** durchdenken will: klar strukturieren (These, Risiko, Stopp, Invalidierung) und auf das UI-Panel **Trade-Check** verweisen für einen vollständigen Pre-Trade-Walkthrough — weiterhin keine Kauf-/Verkaufs-Empfehlung.`,
+  },
+  {
+    id: "trade_analyst",
+    label: "Trade-Check",
+    description: "Modellwahl für Trade-Dry-Run / Pre-Review (/api/trade-analysis)",
+    model: "llama3.2",
+    systemExtension: `Nur **Modellwahl** für den Trade-Check; der Analyse-Prompt liegt fest im Server. Keine Anlageberatung.`,
   },
   {
     id: "rocket",

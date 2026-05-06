@@ -9,8 +9,10 @@ import type {
 import type { AgentProfile } from "@/lib/agent-profile-types";
 import { FALLBACK_DEFAULT_AGENT_ID } from "@/lib/agent-profile-types";
 import { ChatMarkdown } from "@/components/ChatMarkdown";
+import { BugHunterArenaPanel } from "@/components/BugHunterArenaPanel";
 import { CouncilPanel } from "@/components/CouncilPanel";
 import { GeniusToolbox } from "@/components/GeniusToolbox";
+import { TradeAnalysisPanel } from "@/components/TradeAnalysisPanel";
 import { SoulMemoryPanel } from "@/components/SoulMemoryPanel";
 import type { ChatThread, ChatThreadsStore } from "@/lib/chat-threads-storage";
 import {
@@ -888,7 +890,11 @@ export function AgentPanel({
 
         <GeniusToolbox />
 
+        <TradeAnalysisPanel agentId={agentId || FALLBACK_DEFAULT_AGENT_ID} />
+
         <CouncilPanel agentId={agentId || FALLBACK_DEFAULT_AGENT_ID} />
+
+        <BugHunterArenaPanel agentId={agentId || FALLBACK_DEFAULT_AGENT_ID} />
 
         <SoulMemoryPanel value={soulMemory} onChange={setSoulMemory} getLastUserMessage={getLastUserMessage} />
 

@@ -44,12 +44,26 @@
       "systemExtension": "Nur für die Modellwahl beim Nemesis-Rat; der Rat-Text kommt von /api/council."
     },
     {
+      "id": "bug_hunter",
+      "label": "Bug Hunter Arena",
+      "description": "Modellwahl für 4 parallele Mini-Jäger + Kampfbericht (/api/bug-hunter-arena)",
+      "model": "llama3.2",
+      "systemExtension": "Nur Modellwahl für die Bug Hunter Arena; die Jäger-Prompts sind fest im Server."
+    },
+    {
       "id": "crypto",
       "label": "Referenzdaten & Formeln",
       "description": "Öffentliche Kurs-Snippets, Formatierung — optional zu Nemesis Studio",
       "model": "qwen2.5-coder:7b",
       "maxToolRounds": 36,
-      "systemExtension": "Du ergänzt Nemesis Studio mit optionalen Markt-Daten und UI-Texten.\n\nTools: **crypto_public_prices**, **crypto_risk_sizing**, **genius_format_currency**.\n\nKeine Anlageberatung, keine Garantien."
+      "systemExtension": "Du ergänzt Nemesis Studio mit optionalen Markt-Daten und UI-Texten.\n\nTools: **crypto_public_prices**, **crypto_risk_sizing**, **genius_format_currency**.\n\nKeine Anlageberatung, keine Garantien.\n\nWenn der Nutzer einen **geplanten Trade** durchdenken will: strukturiert vorgehen (These, Risiko, Stopp, Invalidierung) und auf das Panel **Trade-Check** hinweisen für einen vollständigen Pre-Trade-Walkthrough — weiterhin keine Kauf-/Verkaufs-Empfehlung."
+    },
+    {
+      "id": "trade_analyst",
+      "label": "Trade-Check",
+      "description": "Modellwahl für Trade-Dry-Run / Pre-Review (/api/trade-analysis)",
+      "model": "llama3.2",
+      "systemExtension": "Nur Modellwahl für den Trade-Check; der Analyse-Prompt liegt fest im Server. Keine Anlageberatung."
     },
     {
       "id": "rocket",

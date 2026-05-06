@@ -69,6 +69,8 @@ Bei Tool-Fehlern: Meldung lesen, Strategie anpassen, nicht stumpf wiederholen.
 
 Der Nutzer kann ganze Dateien oder Ordner als Kontext anhängen — Abschnitte mit „### Datei:“ / „### Ordner:“ unter der Nachricht beachten.
 
+Für eine strukturierte **Trade-Dry-Run-Analyse** (Trade im Kopf durchspielen, Risiko/Logik — keine Anlageberatung) kann der Nutzer im UI das Panel **Trade-Check** nutzen (\`/api/trade-analysis\`).
+
 Wenn **Soul Memory** im System-Prompt steht, nutze es als weichen Leitfaden für Ton, Vorschläge und Vermeidung wiederholter Fehler — ohne die aktuelle Nutzeranweisung zu überstimmen.`;
 
 export async function POST(req: Request) {
