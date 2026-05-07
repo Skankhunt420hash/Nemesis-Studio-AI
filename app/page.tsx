@@ -13,7 +13,8 @@ import { ShortcutsModal } from "@/components/ShortcutsModal";
 import { StudioOverviewBar } from "@/components/StudioOverviewBar";
 import { TerminalPanel } from "@/components/TerminalPanel";
 import { MobileAgentPicker } from "@/components/MobileAgentPicker";
-import { useIsMobile } from "@/hooks/use-is-mobile";
+import { StudioBootScreen } from "@/components/StudioBootScreen";
+import { useResponsiveBreakpoint } from "@/hooks/use-responsive-breakpoint";
 import type { AgentProfile } from "@/lib/agent-profile-types";
 import { flattenTreeDirs, flattenTreeFiles } from "@/lib/flatten-tree";
 import { computeChangedLineNumbers } from "@/lib/diff-line-highlight";
@@ -52,11 +53,13 @@ export default function Home() {
     appendix: string;
   } | null>(null);
 
-  const isMobile = useIsMobile();
+  const breakpoint = useResponsiveBreakpoint();
+  const isMobile = breakpoint === "mobile";
   const [mobilePhase, setMobilePhase] = useState<"agents" | "chat">("agents");
   const [mobilePickedAgent, setMobilePickedAgent] = useState<string | null>(null);
   const [mobileProfiles, setMobileProfiles] = useState<AgentProfile[]>([]);
   const [mobileProfilesLoaded, setMobileProfilesLoaded] = useState(false);
+  const [mobileAgentsFetchError, setMobileAgentsFetchError] = useState<string | null>(null);
   const [mobileFilesOpen, setMobileFilesOpen] = useState(false);
   const [mobileTerminalOpen, setMobileTerminalOpen] = useState(false);
 
@@ -94,6 +97,26 @@ export default function Home() {
     }
   }, []);
 
+  const loadMobileAgentsList = useCallback(async () => {
+    setMobileAgentsFetchError(null);
+    setMobileProfilesLoaded(false);
+    try {
+      const res = await fetch("/api/agents");
+      const data = (await res.json()) as { agents?: AgentProfile[] };
+      if (!res.ok) {
+        setMobileProfiles([]);
+        setMobileAgentsFetchError(`Agentenliste: HTTP ${res.status}`);
+        return;
+      }
+      setMobileProfiles(data.agents ?? []);
+    } catch {
+      setMobileProfiles([]);
+      setMobileAgentsFetchError("Netzwerkfehler beim Laden von /api/agents.");
+    } finally {
+      setMobileProfilesLoaded(true);
+    }
+  }, []);
+
   useEffect(() => {
     startTransition(() => {
       void refreshTree();
@@ -122,23 +145,8 @@ export default function Home() {
 
   useEffect(() => {
     if (!isMobile) return;
-    let cancelled = false;
-    void (async () => {
-      try {
-        const res = await fetch("/api/agents");
-        const data = (await res.json()) as { agents?: AgentProfile[] };
-        if (cancelled) return;
-        setMobileProfiles(data.agents ?? []);
-      } catch {
-        if (!cancelled) setMobileProfiles([]);
-      } finally {
-        if (!cancelled) setMobileProfilesLoaded(true);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [isMobile]);
+    void loadMobileAgentsList();
+  }, [isMobile, loadMobileAgentsList]);
 
   useEffect(() => {
     if (!isMobile) return;
@@ -365,13 +373,19 @@ export default function Home() {
 
   const langLabel = activePath ? languageFromPath(activePath) : "—";
 
+  if (breakpoint === "pending") {
+    return <StudioBootScreen />;
+  }
+
   if (isMobile) {
     return (
       <>
         {mobilePhase === "agents" ? (
           <MobileAgentPicker
             profiles={mobileProfiles}
-            loading={!mobileProfilesLoaded && mobileProfiles.length === 0}
+            loading={!mobileProfilesLoaded && mobileProfiles.length === 0 && !mobileAgentsFetchError}
+            fetchError={mobileAgentsFetchError}
+            onRetryFetch={() => void loadMobileAgentsList()}
             onSelect={(id) => {
               setMobilePickedAgent(id);
               setMobilePhase("chat");

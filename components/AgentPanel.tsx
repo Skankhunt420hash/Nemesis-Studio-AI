@@ -163,6 +163,8 @@ export function AgentPanel({
   const stallToolTraceRef = useRef("");
 
   const [profiles, setProfiles] = useState<AgentProfile[]>([]);
+  /** Wenn gesetzt: /api/agents auf dem Gerät nicht nutzbar (Netzwerk, HTML-Fehlerseite …) */
+  const [profilesLoadError, setProfilesLoadError] = useState<string | null>(null);
   const [agentId, setAgentId] = useState("");
   const [localModels, setLocalModels] = useState<string[]>([]);
   const [localHint, setLocalHint] = useState<string | null>(null);
@@ -252,6 +254,7 @@ export function AgentPanel({
   useEffect(() => {
     let cancelled = false;
     void (async () => {
+      setProfilesLoadError(null);
       try {
         const res = await fetch("/api/agents");
         const data = (await res.json()) as {
@@ -259,9 +262,19 @@ export function AgentPanel({
           defaultAgentId?: string;
         };
         if (cancelled) return;
+        if (!res.ok) {
+          setProfiles([]);
+          setProfilesLoadError(`Agentenliste konnte nicht geladen werden (HTTP ${res.status}).`);
+          return;
+        }
         const list = data.agents ?? [];
         setProfiles(list);
-        if (list.length === 0) return;
+        if (list.length === 0) {
+          setProfilesLoadError(
+            "Agentenliste war leer. Prüfe die Serverbereitstellung und die Logs."
+          );
+          return;
+        }
         let pick = data.defaultAgentId ?? list[0].id;
         if (!list.some((p) => p.id === pick)) pick = list[0].id;
         try {
@@ -281,7 +294,12 @@ export function AgentPanel({
         setAgentId(pick);
         agentIdRef.current = pick;
       } catch {
-        if (!cancelled) setProfiles([]);
+        if (!cancelled) {
+          setProfiles([]);
+          setProfilesLoadError(
+            "Netzwerkfehler beim Aufruf von /api/agents — bitte Deployment prüfen (Render: Service läuft?)"
+          );
+        }
       }
     })();
     return () => {
@@ -1011,6 +1029,18 @@ export function AgentPanel({
             : "border-l border-[#3c3c3c] bg-[#252526]"
         }`}
       >
+        {profilesLoadError ? (
+          <div className="shrink-0 border-b border-[#f59e0b]/40 bg-[#422006]/80 px-2 py-2 text-[11px] leading-snug text-amber-100">
+            <strong className="font-semibold">Agentenliste:</strong> {profilesLoadError}{" "}
+            <button
+              type="button"
+              className="text-amber-200 underline decoration-amber-200/70 underline-offset-2 hover:text-white"
+              onClick={() => window.location.reload()}
+            >
+              Neu laden
+            </button>
+          </div>
+        ) : null}
         {layout === "desktop" ? threadAside : null}
 
         <div

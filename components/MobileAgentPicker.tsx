@@ -42,10 +42,15 @@ function BlobBackdrop() {
 export function MobileAgentPicker({
   profiles,
   loading,
+  fetchError,
+  onRetryFetch,
   onSelect,
 }: {
   profiles: AgentProfile[];
   loading: boolean;
+  /** z. B. wenn /api/agents nicht erreichbar ist */
+  fetchError?: string | null;
+  onRetryFetch?: () => void;
   onSelect: (id: string) => void;
 }) {
   const premium = profiles.filter((p) => p.tier === "premium");
@@ -96,8 +101,39 @@ export function MobileAgentPicker({
         </p>
       </header>
 
-      {loading ? (
+      {fetchError ? (
+        <div className="relative space-y-3 rounded-2xl border border-red-400/35 bg-[#fff7cc]/95 p-4 text-left shadow-inner">
+          <p className="text-[13px] font-semibold text-red-800">Agenten konnten nicht geladen werden</p>
+          <p className="text-[12px] leading-snug text-red-900/90">{fetchError}</p>
+          {onRetryFetch ? (
+            <button
+              type="button"
+              className="nemesis-bubble-btn w-full rounded-xl border border-[#a855f7]/35 bg-[#ede9fe] px-4 py-2.5 text-[13px] font-medium text-[#5b21b6]"
+              onClick={onRetryFetch}
+            >
+              Erneut versuchen
+            </button>
+          ) : null}
+        </div>
+      ) : loading ? (
         <p className="relative text-[14px] text-[#7c3aed]">Agenten werden geladen…</p>
+      ) : premium.length === 0 && free.length === 0 && rest.length === 0 ? (
+        <div className="relative space-y-3 rounded-2xl border border-[#a855f7]/35 bg-[#fff7cc]/95 p-4 text-left">
+          <p className="text-[13px] font-semibold text-[#7c3aed]">Keine Agenten verfügbar</p>
+          <p className="text-[12px] leading-snug text-[#db2777]">
+            Die Liste von <span className="font-mono">/api/agents</span> war leer. Prüfe die
+            Bereitstellung (Build, Server-Logs) oder lade die Seite neu.
+          </p>
+          {onRetryFetch ? (
+            <button
+              type="button"
+              className="nemesis-bubble-btn w-full rounded-xl border border-[#a855f7]/35 bg-[#ede9fe] px-4 py-2.5 text-[13px] font-medium text-[#5b21b6]"
+              onClick={onRetryFetch}
+            >
+              Neu laden
+            </button>
+          ) : null}
+        </div>
       ) : (
         <div className="relative min-h-0 flex-1 space-y-6 overflow-y-auto pb-8">
           {premium.length ? (
