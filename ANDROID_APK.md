@@ -39,8 +39,37 @@ npx cap sync android
 2. **Build → Build Bundle(s) / APK(s) → Build APK(s)**  
    Ausgabe z. B. unter `android/app/build/outputs/apk/`
 
+## Release-APK (signiert, für Download)
+
+### 1) Keystore erstellen (einmalig)
+
+```powershell
+keytool -genkeypair -v -keystore nemesis-release.jks -alias nemesis -keyalg RSA -keysize 2048 -validity 10000
+```
+
+Datei danach sicher aufbewahren (Backups!).
+
+### 2) Gradle Signing in Android Studio
+
+- Android Studio: **Build → Generate Signed Bundle / APK**
+- **APK** wählen
+- Keystore `nemesis-release.jks` + Alias/Passwort eintragen
+- Build Type: `release`
+
+Ergebnis liegt typischerweise unter:
+`android/app/build/outputs/apk/release/app-release.apk`
+
+### 3) APK als Download bereitstellen
+
+- Option A: GitHub Release (Datei hochladen)
+- Option B: eigener Download-Link (HTTPS)
+- Option C: Play Console (langfristig empfohlen)
+
+> Tipp: Für private Tests reicht ein direkter HTTPS-Download-Link der `app-release.apk`.
+
 ## Hinweise
 
 - Ohne `CAP_SERVER_URL` zeigt die WebView nur den Platzhalter unter `www/`.
 - Push / Play Store: später ggf. **signing config** in Android Studio setzen.
 - Gleiche Origin: Cookies/LocalStorage gelten pro geladener URL (wie im Browser).
+- Für Produktions-User immer **Release-APK** statt Debug-APK verteilen.

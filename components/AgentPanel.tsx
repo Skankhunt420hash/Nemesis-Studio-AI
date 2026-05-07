@@ -12,6 +12,7 @@ import { ChatMarkdown } from "@/components/ChatMarkdown";
 import { BugHunterArenaPanel } from "@/components/BugHunterArenaPanel";
 import { CouncilPanel } from "@/components/CouncilPanel";
 import { GeniusToolbox } from "@/components/GeniusToolbox";
+import { LaunchExportPanel } from "@/components/LaunchExportPanel";
 import { TradeAnalysisPanel } from "@/components/TradeAnalysisPanel";
 import { SoulMemoryPanel } from "@/components/SoulMemoryPanel";
 import type { ChatThread, ChatThreadsStore } from "@/lib/chat-threads-storage";
@@ -985,6 +986,7 @@ export function AgentPanel({
 
   const studioExtras = (
     <>
+      <LaunchExportPanel selectedAgentId={agentId || FALLBACK_DEFAULT_AGENT_ID} profiles={profiles} />
       <GeniusToolbox />
       <TradeAnalysisPanel agentId={agentId || FALLBACK_DEFAULT_AGENT_ID} />
       <CouncilPanel agentId={agentId || FALLBACK_DEFAULT_AGENT_ID} />
