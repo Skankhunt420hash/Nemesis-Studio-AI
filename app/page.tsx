@@ -58,6 +58,7 @@ export default function Home() {
   const [mobileProfiles, setMobileProfiles] = useState<AgentProfile[]>([]);
   const [mobileProfilesLoaded, setMobileProfilesLoaded] = useState(false);
   const [mobileFilesOpen, setMobileFilesOpen] = useState(false);
+  const [mobileTerminalOpen, setMobileTerminalOpen] = useState(false);
 
   const flatFiles = useMemo(() => flattenTreeFiles(tree), [tree]);
   const flatDirs = useMemo(() => flattenTreeDirs(tree), [tree]);
@@ -376,6 +377,7 @@ export default function Home() {
               mobilePickedAgentId={mobilePickedAgent}
               onMobileBack={() => setMobilePhase("agents")}
               onMobileOpenFiles={() => setMobileFilesOpen(true)}
+              onMobileOpenTerminal={() => setMobileTerminalOpen(true)}
               onAfterAgentRun={afterAgent}
               onAfterUndo={(snaps) => void afterAgent({ skipDiff: true, undoSnapshots: snaps })}
               onWorkspaceUploaded={() => void refreshTree()}
@@ -418,6 +420,34 @@ export default function Home() {
                     setMobileFilesOpen(false);
                   }}
                 />
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {mobileTerminalOpen ? (
+          <div
+            className="fixed inset-0 z-[61] flex flex-col bg-[#0c0615]/96 backdrop-blur-md"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Terminal"
+          >
+            <div className="flex items-center justify-between border-b border-white/10 px-3 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+              <span className="text-[15px] font-semibold text-white">Terminal</span>
+              <button
+                type="button"
+                onClick={() => setMobileTerminalOpen(false)}
+                className="rounded-full border border-white/20 px-3 py-1 text-[13px] text-white"
+              >
+                Fertig
+              </button>
+            </div>
+            <p className="px-3 py-2 text-[11px] leading-snug text-cyan-200/85">
+              Voller Terminal-Modus auf Mobile. Bei Verbindungsproblemen kurz neu starten.
+            </p>
+            <div className="min-h-0 flex-1 overflow-hidden px-2 pb-[max(0.6rem,env(safe-area-inset-bottom))]">
+              <div className="h-full overflow-hidden rounded-xl border border-cyan-500/30 bg-[#111118]">
+                <TerminalPanel />
               </div>
             </div>
           </div>

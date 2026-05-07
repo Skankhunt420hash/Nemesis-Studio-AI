@@ -120,6 +120,7 @@ export function AgentPanel({
   onMobileBack,
   mobilePickedAgentId = null,
   onMobileOpenFiles,
+  onMobileOpenTerminal,
 }: {
   onAfterAgentRun?: () => void;
   /** Nach erfolgreichem Rückgängig: Workspace/Editor neu laden; Snapshots für Zeitreise-Korrektur. */
@@ -140,6 +141,8 @@ export function AgentPanel({
   mobilePickedAgentId?: string | null;
   /** Workspace-Dateien öffnen (Sheet in page.tsx). */
   onMobileOpenFiles?: () => void;
+  /** Mobile Terminal öffnen (Sheet in page.tsx). */
+  onMobileOpenTerminal?: () => void;
 }) {
   const [threadStore, setThreadStore] = useState<ChatThreadsStore | null>(null);
   const [input, setInput] = useState("");
@@ -1046,6 +1049,13 @@ export function AgentPanel({
                 className="rounded-full border border-amber-300/45 bg-amber-400/25 px-2.5 py-1.5 text-[11px] font-medium text-amber-50"
               >
                 Datei
+              </button>
+              <button
+                type="button"
+                onClick={() => onMobileOpenTerminal?.()}
+                className="rounded-full border border-cyan-300/40 bg-cyan-500/20 px-2.5 py-1.5 text-[11px] font-medium text-cyan-50"
+              >
+                Terminal
               </button>
               <button
                 type="button"
