@@ -48,6 +48,40 @@ Wenn lokaler TLS/Proxy Probleme macht, nutze den Cloud-Build:
 3. Nach Erfolg Artifact **`nemesis-debug-apk`** herunterladen
 4. Enthaltene Datei: `app-debug.apk` (direkt installierbar für Tests)
 
+## Verteilungsfertige Release-APK per GitHub Actions (signiert)
+
+Du hast jetzt den Workflow **`Build Signed Release APK`**.
+
+### 1) GitHub Secrets setzen (einmalig)
+
+Im Repo: **Settings → Secrets and variables → Actions → New repository secret**
+
+- `ANDROID_KEYSTORE_BASE64`  
+  Inhalt: Base64 deines `release.jks`
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
+
+Keystore in Base64 erzeugen (PowerShell):
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("nemesis-release.jks")) | Set-Clipboard
+```
+
+Dann den Clipboard-Inhalt als `ANDROID_KEYSTORE_BASE64` einfügen.
+
+### 2) Release-Build starten
+
+1. GitHub → **Actions** → **Build Signed Release APK**
+2. **Run workflow**
+3. Bei `cap_server_url` deine produktive URL eintragen (z. B. `https://dein-projekt.vercel.app`)
+
+### 3) APK herunterladen
+
+Nach erfolgreichem Run:
+- Artifact **`nemesis-release-apk`** herunterladen
+- Enthält: **`app-release.apk`** (signiert, verteilungsfertig)
+
 ## Release-APK (signiert, für Download)
 
 ### 1) Keystore erstellen (einmalig)
