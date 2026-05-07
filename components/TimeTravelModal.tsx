@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { languageFromPath } from "@/components/CodeEditor";
 
 const DiffEditor = dynamic(
@@ -31,10 +31,6 @@ export function TimeTravelModal({
   onClose: () => void;
 }) {
   const [idx, setIdx] = useState(0);
-
-  useEffect(() => {
-    if (open) setIdx(0);
-  }, [open, path]);
 
   const n = versions.length;
   const { left, right, label } = useMemo(() => {

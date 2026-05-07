@@ -193,15 +193,24 @@ export function AgentPanel({
   const [mobileDrawer, setMobileDrawer] = useState<null | "threads" | "settings">(null);
   const [mobileSavedHint, setMobileSavedHint] = useState<string>("");
 
-  /* eslint-disable react-hooks/set-state-in-effect -- Chat-Verläufe aus localStorage nach Client-Mount */
+  /* eslint-disable react-hooks/set-state-in-effect -- localStorage/Chats: Hydration erst nach Client-Mount */
   useEffect(() => {
     setThreadStore(loadChatThreads());
   }, []);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     setSoulMemory(loadSoulMemoryFromBrowser());
   }, []);
+
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem(SCRATCH_LS);
+      if (s) setScratchPad(s);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     soulMemoryRef.current = soulMemory;
@@ -221,15 +230,6 @@ export function AgentPanel({
     }, 280);
     return () => window.clearTimeout(h);
   }, [layout, threadStore]);
-
-  useEffect(() => {
-    try {
-      const s = localStorage.getItem(SCRATCH_LS);
-      if (s) setScratchPad(s);
-    } catch {
-      /* ignore */
-    }
-  }, []);
 
   useEffect(() => {
     try {

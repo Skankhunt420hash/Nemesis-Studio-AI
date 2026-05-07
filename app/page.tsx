@@ -767,6 +767,7 @@ export default function Home() {
 
       {timeTravelOpen && activePath ? (
         <TimeTravelModal
+          key={activePath}
           open
           path={activePath}
           versions={fileHistory[activePath] ?? []}
