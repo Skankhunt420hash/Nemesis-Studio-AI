@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+.github
+*.md
+.env*.local
+android
+www
+.keystore
