@@ -59,7 +59,7 @@ jobs:
           fi
           chmod +x ./gradlew
           ./gradlew --no-daemon assembleRelease \
-            -Pandroid.injected.signing.store.file="../.keystore/release.jks" \
+            -Pandroid.injected.signing.store.file="../../.keystore/release.jks" \
             -Pandroid.injected.signing.store.password="$KS_PASS" \
             -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
             -Pandroid.injected.signing.key.password="$KEY_PASS"
