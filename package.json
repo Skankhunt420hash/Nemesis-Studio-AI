@@ -6,8 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "ci": "npm run lint && npm run build",
+    "lint": "npx eslint",
+    "ci": "npx eslint && npm run build",
     "cap:sync": "npx cap sync",
     "cap:open": "npx cap open android",
     "android:prepare": "npx cap sync android"
