@@ -387,6 +387,50 @@ export default function Home() {
               verhoerPrefill={verhoerPrefill}
               onConsumeVerhoerPrefill={() => setVerhoerPrefill(null)}
             />
+
+            <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/15 bg-[#140f22]/90 px-2 pb-[max(0.45rem,env(safe-area-inset-bottom))] pt-1 backdrop-blur-xl">
+              <div className="mx-auto grid w-full max-w-md grid-cols-4 gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileFilesOpen(false);
+                    setMobileTerminalOpen(false);
+                  }}
+                  className="rounded-xl px-2 py-2 text-[11px] font-medium text-violet-100 hover:bg-white/10"
+                >
+                  Chat
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobileFilesOpen(true)}
+                  className={`rounded-xl px-2 py-2 text-[11px] font-medium ${
+                    mobileFilesOpen
+                      ? "bg-amber-400/25 text-amber-100 ring-1 ring-amber-300/50"
+                      : "text-violet-100 hover:bg-white/10"
+                  }`}
+                >
+                  Dateien
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobileTerminalOpen(true)}
+                  className={`rounded-xl px-2 py-2 text-[11px] font-medium ${
+                    mobileTerminalOpen
+                      ? "bg-cyan-400/25 text-cyan-100 ring-1 ring-cyan-300/50"
+                      : "text-violet-100 hover:bg-white/10"
+                  }`}
+                >
+                  Terminal
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMobilePhase("agents")}
+                  className="rounded-xl px-2 py-2 text-[11px] font-medium text-violet-100 hover:bg-white/10"
+                >
+                  Agenten
+                </button>
+              </div>
+            </nav>
           </div>
         )}
 
