@@ -39,6 +39,15 @@ npx cap sync android
 2. **Build → Build Bundle(s) / APK(s) → Build APK(s)**  
    Ausgabe z. B. unter `android/app/build/outputs/apk/`
 
+## Einfacher Download ohne lokalen Build (GitHub Actions)
+
+Wenn lokaler TLS/Proxy Probleme macht, nutze den Cloud-Build:
+
+1. Auf GitHub ins Repo → **Actions** → **Build Android APK**
+2. Workflow starten (**Run workflow**)
+3. Nach Erfolg Artifact **`nemesis-debug-apk`** herunterladen
+4. Enthaltene Datei: `app-debug.apk` (direkt installierbar für Tests)
+
 ## Release-APK (signiert, für Download)
 
 ### 1) Keystore erstellen (einmalig)

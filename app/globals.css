@@ -25,6 +25,100 @@ body {
   font-family: var(--font-geist-sans), system-ui, sans-serif;
 }
 
+.nemesis-fun-bg {
+  background: #ffe45e;
+}
+
+.nemesis-fun-text {
+  color: #7c3aed;
+}
+
+.nemesis-fun-text-alt {
+  color: #ec4899;
+}
+
+@keyframes bubble-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(0.9);
+  }
+  70% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.nemesis-bubble-btn {
+  position: relative;
+  overflow: hidden;
+  border-radius: 9999px;
+  transition: transform 120ms ease, box-shadow 180ms ease;
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.22);
+}
+
+.nemesis-bubble-btn:active {
+  animation: bubble-pop 250ms ease-out;
+}
+
+@keyframes bubble-float-y {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -16px, 0) scale(1.04);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes bubble-drift-x {
+  0% {
+    margin-left: 0;
+  }
+  50% {
+    margin-left: 10px;
+  }
+  100% {
+    margin-left: 0;
+  }
+}
+
+.nemesis-float-layer {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.nemesis-float-bubble {
+  position: absolute;
+  border-radius: 9999px;
+  opacity: 0.22;
+  filter: blur(1px);
+  animation:
+    bubble-float-y var(--dur, 6.8s) ease-in-out infinite,
+    bubble-drift-x calc(var(--dur, 6.8s) * 1.18) ease-in-out infinite;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(255, 255, 255, 0.82),
+    rgba(236, 72, 153, 0.42) 45%,
+    rgba(124, 58, 237, 0.28) 72%
+  );
+  will-change: transform;
+}
+
+.nemesis-parallax-soft {
+  transform: translate3d(var(--nemesis-parallax-x, 0px), var(--nemesis-parallax-y, 0px), 0);
+  transition: transform 220ms ease-out;
+  will-change: transform;
+}
+
 /* Ghost-Zeilen nach Agent-Diff (Monaco) */
 .monaco-editor .nemesis-ghost-line {
   background-color: rgba(255, 200, 80, 0.14) !important;

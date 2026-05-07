@@ -140,6 +140,30 @@ export default function Home() {
     };
   }, [isMobile]);
 
+  useEffect(() => {
+    if (!isMobile) return;
+    const root = document.documentElement;
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        const y = Math.min(14, window.scrollY * 0.06);
+        const x = Math.sin(window.scrollY * 0.01) * 4;
+        root.style.setProperty("--nemesis-parallax-y", `${-y}px`);
+        root.style.setProperty("--nemesis-parallax-x", `${x}px`);
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) window.cancelAnimationFrame(raf);
+      root.style.removeProperty("--nemesis-parallax-y");
+      root.style.removeProperty("--nemesis-parallax-x");
+    };
+  }, [isMobile]);
+
   const openOrFocusTab = useCallback(async (rel: string) => {
     if (buffers[rel]) {
       setActivePath(rel);
@@ -354,23 +378,32 @@ export default function Home() {
             }}
           />
         ) : (
-          <div className="relative flex h-[100dvh] flex-col overflow-hidden bg-[#0f0a18]">
+          <div className="nemesis-fun-bg relative flex h-[100dvh] flex-col overflow-hidden">
             <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
               <div
-                className="absolute -left-[25%] top-[-20%] h-[60vmin] w-[60vmin] rounded-full opacity-80 blur-[70px]"
+                className="nemesis-parallax-soft absolute -left-[25%] top-[-20%] h-[60vmin] w-[60vmin] rounded-full opacity-80 blur-[70px]"
                 style={{
                   background:
                     "radial-gradient(circle, rgba(167, 139, 250, 0.9), rgba(91, 33, 182, 0.35) 55%, transparent 72%)",
                 }}
               />
               <div
-                className="absolute -right-[20%] bottom-[-15%] h-[55vmin] w-[55vmin] rounded-full opacity-85 blur-[64px]"
+                className="nemesis-parallax-soft absolute -right-[20%] bottom-[-15%] h-[55vmin] w-[55vmin] rounded-full opacity-85 blur-[64px]"
                 style={{
                   background:
                     "radial-gradient(circle, rgba(253, 224, 71, 0.85), rgba(217, 119, 6, 0.4) 50%, transparent 70%)",
                 }}
               />
-              <div className="absolute inset-0 bg-[#0f0a18]/88" />
+              <div className="absolute inset-0 bg-[#ffe45e]/75" />
+              <div className="nemesis-float-layer nemesis-parallax-soft">
+                <span className="nemesis-float-bubble left-[6%] top-[15%] h-8 w-8 [--dur:6.4s]" />
+                <span className="nemesis-float-bubble left-[16%] top-[54%] h-5 w-5 [--dur:7.3s]" />
+                <span className="nemesis-float-bubble left-[34%] top-[78%] h-9 w-9 [--dur:6.9s]" />
+                <span className="nemesis-float-bubble left-[52%] top-[22%] h-7 w-7 [--dur:8.2s]" />
+                <span className="nemesis-float-bubble left-[69%] top-[58%] h-10 w-10 [--dur:6.1s]" />
+                <span className="nemesis-float-bubble left-[82%] top-[34%] h-6 w-6 [--dur:7.8s]" />
+                <span className="nemesis-float-bubble left-[90%] top-[74%] h-4 w-4 [--dur:8.5s]" />
+              </div>
             </div>
             <AgentPanel
               layout="mobile"
@@ -388,7 +421,7 @@ export default function Home() {
               onConsumeVerhoerPrefill={() => setVerhoerPrefill(null)}
             />
 
-            <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-white/15 bg-[#140f22]/90 px-2 pb-[max(0.45rem,env(safe-area-inset-bottom))] pt-1 backdrop-blur-xl">
+            <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#7c3aed]/30 bg-[#fff4bf]/90 px-2 pb-[max(0.45rem,env(safe-area-inset-bottom))] pt-1 backdrop-blur-xl">
               <div className="mx-auto grid w-full max-w-md grid-cols-4 gap-1">
                 <button
                   type="button"
@@ -396,17 +429,17 @@ export default function Home() {
                     setMobileFilesOpen(false);
                     setMobileTerminalOpen(false);
                   }}
-                  className="rounded-xl px-2 py-2 text-[11px] font-medium text-violet-100 hover:bg-white/10"
+                  className="nemesis-bubble-btn rounded-xl px-2 py-2 text-[11px] font-medium text-[#7c3aed] hover:bg-[#f9a8d4]/40"
                 >
                   Chat
                 </button>
                 <button
                   type="button"
                   onClick={() => setMobileFilesOpen(true)}
-                  className={`rounded-xl px-2 py-2 text-[11px] font-medium ${
+                  className={`nemesis-bubble-btn rounded-xl px-2 py-2 text-[11px] font-medium ${
                     mobileFilesOpen
-                      ? "bg-amber-400/25 text-amber-100 ring-1 ring-amber-300/50"
-                      : "text-violet-100 hover:bg-white/10"
+                      ? "bg-[#ec4899]/20 text-[#ec4899] ring-1 ring-[#ec4899]/50"
+                      : "text-[#7c3aed] hover:bg-[#f9a8d4]/40"
                   }`}
                 >
                   Dateien
@@ -414,10 +447,10 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setMobileTerminalOpen(true)}
-                  className={`rounded-xl px-2 py-2 text-[11px] font-medium ${
+                  className={`nemesis-bubble-btn rounded-xl px-2 py-2 text-[11px] font-medium ${
                     mobileTerminalOpen
-                      ? "bg-cyan-400/25 text-cyan-100 ring-1 ring-cyan-300/50"
-                      : "text-violet-100 hover:bg-white/10"
+                      ? "bg-[#ec4899]/20 text-[#ec4899] ring-1 ring-[#ec4899]/50"
+                      : "text-[#7c3aed] hover:bg-[#f9a8d4]/40"
                   }`}
                 >
                   Terminal
@@ -425,7 +458,7 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setMobilePhase("agents")}
-                  className="rounded-xl px-2 py-2 text-[11px] font-medium text-violet-100 hover:bg-white/10"
+                  className="nemesis-bubble-btn rounded-xl px-2 py-2 text-[11px] font-medium text-[#7c3aed] hover:bg-[#f9a8d4]/40"
                 >
                   Agenten
                 </button>
